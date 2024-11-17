@@ -20,6 +20,9 @@ export class AuthService {
         const user = await this.prisma.user.findUnique({
             where: {
                 email
+            },
+            include: {
+                role: true
             }
         })
         if (!user) throw new BadRequestException("user doesn't exist");
@@ -28,7 +31,7 @@ export class AuthService {
         if (user?.password !== pass) {
             throw new UnauthorizedException();
         }
-        const payload = { sub: user.id, username: user.email };
+        const payload = { sub: user.id, username: user.email, role: user.role.name };
         return {
             access_token: await this.jwtService.signAsync(payload),
         };
